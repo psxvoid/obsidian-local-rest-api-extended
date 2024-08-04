@@ -1,4 +1,4 @@
-import { Plugin } from "obsidian";
+import { FrontMatterCache, Plugin } from "obsidian";
 import { getAPI, LocalRestApiPublicApi } from "obsidian-local-rest-api";
 import { Frontmatter } from "src/obsidian-api/frontmatter";
 
@@ -28,21 +28,12 @@ export default class ObsidianLocalRESTAPISamplePlugin extends Plugin {
 			})
 			.post(async (request, response) => {
 				const path = request.params[0];
-				const tFile = this.app.vault.getFileByPath(path)
 
 				if (request.query == null) {
 					throw new Error("Frontmatter fields to update aren't found in the request params.")
 				}
 
-				if (tFile == null) {
-					throw new Error("Unable to find the requested file.")
-				}
-
-				await this.app.fileManager.processFrontMatter(tFile, (frontmatter) => {
-					for (let [k, v] of Object.entries(request.query)) {
-						frontmatter[k] = v;
-					}
-				});
+				await this.frontmatter.write(path, request.query)
 
 				response.status(200).json({
 					sample_plugin_response_ok: true,

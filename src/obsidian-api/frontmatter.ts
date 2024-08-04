@@ -23,4 +23,18 @@ export class Frontmatter {
 
 		return metadata.frontmatter
 	}
+
+	async write(path: string, frontmatterPartial: Partial<FrontMatterCache>): Promise<void> {
+		const tFile = this.app.vault.getFileByPath(path)
+
+		if (tFile == null) {
+			throw new Error("Unable to find the requested file.")
+		}
+
+		await this.app.fileManager.processFrontMatter(tFile, (frontmatter) => {
+			for (let [k, v] of Object.entries(frontmatterPartial)) {
+				frontmatter[k] = v;
+			}
+		});
+	}
 }
