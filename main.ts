@@ -1,40 +1,53 @@
 import { Plugin } from "obsidian";
 import { getAPI, LocalRestApiPublicApi } from "obsidian-local-rest-api";
+import { Frontmatter } from "src/obsidian-api/frontmatter";
 
 export default class ObsidianLocalRESTAPISamplePlugin extends Plugin {
 	private api: LocalRestApiPublicApi;
+	private frontmatter: Frontmatter;
 
 	registerRoutes() {
 		// Here is how you register your routes:
 		//
 		// 1. Get an API handle:
 		this.api = getAPI(this.app, this.manifest);
+		this.frontmatter = new Frontmatter(() => this.app)
 
 		// 2. Add your routes -- `addRoute` returns a route object
 		//    https://www.geeksforgeeks.org/express-js-router-route-function/
 		//    that you can attach handlers to
-		this.api.addRoute("/frontmatter/(.*)").post(async (request, response) => {
-			const path = request.params[0];
-			const tFile = this.app.vault.getFileByPath(path)
+		this.api.addRoute("/frontmatter/(.*)")
+			.get((request, response) => {
+				const path = request.params[0];
 
-			if (request.query == null) {
-				throw new Error("Frontmatter fields to update aren't found in the request params.")
-			}
+				const result = this.frontmatter.read(path);
 
-			if (tFile == null) {
-				throw new Error("Unable to find the requested file.")
-			}
+				response.status(200).json({
+					frontmatter: result
+				});
+			})
+			.post(async (request, response) => {
+				const path = request.params[0];
+				const tFile = this.app.vault.getFileByPath(path)
 
-			await this.app.fileManager.processFrontMatter(tFile, (frontmatter) => {
-				for (let [k, v] of Object.entries(request.query)) {
-					frontmatter[k] = v;
+				if (request.query == null) {
+					throw new Error("Frontmatter fields to update aren't found in the request params.")
 				}
-			});
 
-			response.status(200).json({
-				sample_plugin_response_ok: true,
+				if (tFile == null) {
+					throw new Error("Unable to find the requested file.")
+				}
+
+				await this.app.fileManager.processFrontMatter(tFile, (frontmatter) => {
+					for (let [k, v] of Object.entries(request.query)) {
+						frontmatter[k] = v;
+					}
+				});
+
+				response.status(200).json({
+					sample_plugin_response_ok: true,
+				});
 			});
-		});
 
 		// For more insight into what you can put into a route, have
 		// a look at the existing routes that are handled by
