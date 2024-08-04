@@ -1,10 +1,10 @@
 {
-	"id": "obsidian-local-rest-api-sample-api-extension",
-	"name": "Local REST API Sample API Extension",
+	"id": "obsidian-local-rest-api-extended",
+	"name": "Local REST API Extended Extension",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Example of how you can add additional routes to Obsidian Local REST API via a plugin",
-	"author": "Obsidian",
-	"authorUrl": "https://coddingtonbear.net/",
+	"description": "Extends Obsidian Local REST API plugin by adding some additional endpoints.",
+	"author": "psxvoid",
+	"authorUrl": "https://sapehin.com/",
 	"isDesktopOnly": true
 }
